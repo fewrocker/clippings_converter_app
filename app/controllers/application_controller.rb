@@ -7,8 +7,10 @@ class ApplicationController < ActionController::Base
 
   def return_books
     pp "Reached here"
-    pp params
+
     @books = [1,2,3]
+
+    render 'application/return_books.json'
   end
 
   def return_highlights

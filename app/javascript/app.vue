@@ -27,15 +27,15 @@ export default {
 
       await this.$sleep(1000)
 
-      axios.post('/return_books', {
-          contents: vm.contents,
-        })
-        .then(function (response) {
-          console.log(response);
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
+      axios({
+        method: 'post',
+        url: '/return_books',
+        data: {
+          content: vm.content,
+        }
+      }).then(function (res) {
+        console.log(res.data)
+      })
 
     },
   },
