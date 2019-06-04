@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
-  root to: 'pages#home'
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  root to: 'application#home'
+
+  post 'return_books', to: 'application#return_books', as: 'return_books'
+  post 'return_highlights', to: 'application#return_books', as: 'return_highlights'
 end

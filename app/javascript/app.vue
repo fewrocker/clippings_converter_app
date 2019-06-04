@@ -1,6 +1,8 @@
 <template>
-  <div id="app">
+  <div>
     <p>{{ message }}</p>
+
+    <input type="file" ref="fileInput" @change="processFile($event)">
   </div>
 </template>
 
@@ -8,9 +10,35 @@
 export default {
   data: function () {
     return {
-      message: "Hello Vue!"
+      message: "Hello Vue!",
+      file: "",
+      content: "",
     }
-  }
+  },
+  methods: {
+    async processFile(event) {
+      const vm = this
+
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = e => (vm.content = e.target.result);
+      reader.readAsText(file);
+
+      await this.$sleep(1000)
+
+      axios.post('/return_books', {
+          contents: vm.contents,
+        })
+        .then(function (response) {
+          console.log(response);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+
+    },
+  },
 }
 </script>
 
