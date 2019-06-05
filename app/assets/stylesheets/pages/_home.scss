@@ -1,1 +1,16 @@
-// Specific CSS for your home-page
+.full-app {
+  height: 100vh;
+  background: rgba(220,220,220,1);
+
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.welcome-title {
+  font-size: 20px;
+  color: black;
+  font-family: 'Helvetica';
+
+  margin-bottom: 30px;
+}

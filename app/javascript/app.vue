@@ -1,8 +1,24 @@
 <template>
   <div>
-    <p>{{ message }}</p>
+    <div class="full-app">
+      <div v-if="screen === 'input-file'" class="app-input-file text-center">
+        <h1 class="welcome-title">
+          Please upload you "my_clippings.txt" file below:
+        </h1>
+        <input type="file" ref="fileInput" @change="processFile($event)">
+      </div>
 
-    <input type="file" ref="fileInput" @change="processFile($event)">
+      <div v-if="screen === 'list-books'" class="app-list-books text-center">
+        <h1 class="welcome-title">
+          Here are the books contained in your clippings:
+        </h1>
+        <ul>
+          <li v-for="book in books"> {{book}} </li>
+        </ul>
+
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -10,9 +26,11 @@
 export default {
   data: function () {
     return {
+      screen: "input-file",
       message: "Hello Vue!",
       file: "",
       content: "",
+      books: [],
     }
   },
   methods: {
@@ -34,17 +52,16 @@ export default {
           content: vm.content,
         }
       }).then(function (res) {
-        console.log(res.data)
+        console.log(res.data.books)
+        vm.books = res.data.books
+        vm.screen = "list-books"
       })
-
     },
   },
 }
 </script>
 
 <style scoped>
-p {
-  font-size: 2em;
-  text-align: center;
-}
+
+
 </style>

@@ -1,2 +1,0 @@
-class Highlight < ApplicationRecord
-end
