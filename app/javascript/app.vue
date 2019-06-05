@@ -40,22 +40,21 @@ export default {
       const file = event.target.files[0];
       const reader = new FileReader();
 
-      reader.onload = e => (vm.content = e.target.result);
+      reader.onload = e => (this.content = e.target.result);
       reader.readAsText(file);
 
       await this.$sleep(1000)
 
-      axios({
+      const res = await axios({
         method: 'post',
         url: '/return_books',
         data: {
-          content: vm.content,
+          content: this.content,
         }
-      }).then(function (res) {
-        console.log(res.data.books)
-        vm.books = res.data.books
-        vm.screen = "list-books"
       })
+
+      this.books = res.data.books
+      this.screen = "list-books"
     },
   },
 }
