@@ -9,20 +9,32 @@ class ApplicationController < ActionController::Base
   def return_books
     clippings = separate_content_into_clippings(params[:content])
 
-    highlights = create_highlights_from_clippings(clippings)
-
-    raise
-
-    books = get_books_from_highlights(highlights)
-
-    @books = books.map(&:name)
+    @books = create_highlights_from_clippings(clippings)
 
     render 'application/return_books.json'
   end
 
-  # def return_highlights
+  def return_highlights
+    book = Book.find(params[:id])
 
-  # end
+    book_file_path = "public/#{book.id}_#{book.name}_highlights.txt"
+
+    # FileUtils.mkdir_p(book_file_path) unless File.exist?(book_file_path)
+    open(book_file_path, 'w') { |f|
+      f.puts "Highlights for #{book.name}"
+      f.puts "\n"
+      f.puts "\n"
+
+      book.highlights.each do |h|
+        f.puts h.content
+        f.puts "\n"
+      end
+    }
+
+    @book_download_url = book_file_path.split('/').last
+
+    render 'application/return_highlights.json'
+  end
 
   private
 
@@ -39,47 +51,27 @@ class ApplicationController < ActionController::Base
   end
 
   def create_highlights_from_clippings(clippings)
-    previous_books = Book.all
     current_books = []
 
     clippings.each do |clipping|
       book_name = clipping.book_name
 
-      book = Book.find_by(name: book_name)
+      book = current_books.find { |bk| bk.name == book_name }
 
-      if book.nil? || previous_books.include?(book)
-        book = Book.create(name: book_name)
+      if book.nil?
+        book = Book.create(name: book_name) if book.nil?
+        current_books << book
       end
-
-      current_books << book
 
       highlight = Highlight.new
       highlight.content = clipping.highlight
       highlight.book = book
       highlight.save
 
-      destroy_repeated_highlights(book)
+      destroy_repeated_highlights(book, highlight)
     end
 
     current_books
-  end
-
-  def get_books_from_highlights(highlights)
-    books = []
-
-    highlights.each do |h|
-      book = find_book(books, h.book)
-
-      if book.nil?
-        book = Book.new(h.book)
-        books << book
-      else
-        book.count_highlight
-        book.count_words(h.highlight)
-      end
-    end
-
-    books.sort_by { |book| book.name }
   end
 
   def user_select_book(books)
@@ -136,14 +128,15 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def destroy_repeated_highlights(book)
-    last_highlight = book.highlights.last
+  def destroy_repeated_highlights(book, highlight)
+    # return if book.highlights.length < 10
 
     book.highlights.each do |h|
-      next if h = last_highlight
+      next if h.id == highlight.id
 
-      if last_highlight.content.include?(h.content) || h.content.include?(last_highlight.content)
+      if highlight.content.include?(h.content) || h.content.include?(highlight.content)
         h.destroy
+        pp "Destroyed repeated highlight"
       end
     end
   end
@@ -156,3 +149,9 @@ class ApplicationController < ActionController::Base
     books.find { |b| b.name == book}
   end
 end
+
+
+# def extract_first_email_from_string(txt)
+#   reg = /\s*\([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i
+#   txt.scan(reg).uniq.first
+# end

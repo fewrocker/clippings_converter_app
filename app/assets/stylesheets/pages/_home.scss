@@ -1,5 +1,5 @@
 .full-app {
-  height: 100vh;
+  // height: 100vh;
   background: rgba(220,220,220,1);
 
   display: flex;
@@ -14,3 +14,34 @@
 
   margin-bottom: 30px;
 }
+
+.each-book {
+  margin: 2px 10px;
+  background: rgba(230,230,230,1);
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  &:hover{
+    background: rgba(210,210,210,1);
+    transition: 300ms ease;
+  }
+}
+
+.book-name {
+  font-size: 18px;
+  color: black;
+  font-family: 'Helvetica';
+
+  flex: 0 0 80%;
+}
+
+.book-highlights {
+  font-size: 16px;
+  color: black;
+  font-family: 'Helvetica';
+
+  flex: 0 0 20%;
+}
+
