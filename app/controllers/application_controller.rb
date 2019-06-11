@@ -7,9 +7,11 @@ class ApplicationController < ActionController::Base
   end
 
   def return_books
-    separated_clippings = separate_content_into_clippings(params[:content])
+    clippings = separate_content_into_clippings(params[:content])
 
-    highlights = create_highlights_from_clippings(separated_clippings)
+    highlights = create_highlights_from_clippings(clippings)
+
+    raise
 
     books = get_books_from_highlights(highlights)
 
@@ -25,18 +27,41 @@ class ApplicationController < ActionController::Base
   private
 
   def separate_content_into_clippings(content)
-    content.split("==========").reject { |el| el === "\n" }
+    clippings = content.split("==========").reject { |el| el === "\n" }
+
+    clippings_array = []
+
+    clippings.each do |clipping|
+      clippings_array << Clipping.new(clipping)
+    end
+
+    clippings_array
   end
 
   def create_highlights_from_clippings(clippings)
-    highlights = []
+    previous_books = Book.all
+    current_books = []
 
     clippings.each do |clipping|
-      highlights << Highlight.new(clipping)
-      highlights = delete_repeated_highlights(highlights)
+      book_name = clipping.book_name
+
+      book = Book.find_by(name: book_name)
+
+      if book.nil? || previous_books.include?(book)
+        book = Book.create(name: book_name)
+      end
+
+      current_books << book
+
+      highlight = Highlight.new
+      highlight.content = clipping.highlight
+      highlight.book = book
+      highlight.save
+
+      destroy_repeated_highlights(book)
     end
 
-    highlights
+    current_books
   end
 
   def get_books_from_highlights(highlights)
@@ -111,11 +136,15 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def delete_repeated_highlights(highlights)
-    last_highlight = highlights.last
+  def destroy_repeated_highlights(book)
+    last_highlight = book.highlights.last
 
-    return highlights.reject do |h|
-      h != highlights.last && (last_highlight.highlight.include?(h.highlight) || h.highlight.include?(last_highlight.highlight))
+    book.highlights.each do |h|
+      next if h = last_highlight
+
+      if last_highlight.content.include?(h.content) || h.content.include?(last_highlight.content)
+        h.destroy
+      end
     end
   end
 
