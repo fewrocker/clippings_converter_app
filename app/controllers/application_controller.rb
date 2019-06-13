@@ -17,19 +17,9 @@ class ApplicationController < ActionController::Base
   def return_highlights
     book = Book.find(params[:id])
 
-    book_file_path = "public/books/#{book.id}_#{book.name}_highlights.txt"
+    book_file_path = "public/books/#{book.id}_#{book.name}_highlights.docx"
 
-    # FileUtils.mkdir_p(book_file_path) unless File.exist?(book_file_path)
-    open(book_file_path, 'w') { |f|
-      f.puts "Highlights for #{book.name}"
-      f.puts "\n"
-      f.puts "\n"
-
-      book.highlights.each do |h|
-        f.puts h.content
-        f.puts "\n"
-      end
-    }
+    create_file_using_caracal(book, book_file_path)
 
     @book_download_url = book_file_path.gsub("public/", "")
 
@@ -128,6 +118,59 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def create_file_using_caracal(book, path)
+    Caracal::Document.save path do |docx|
+      docx.font do
+        name "Helvetica"
+      end
+
+      docx.page_margins do
+        left    800
+        right   800
+        top     1200
+        bottom  1200
+      end
+
+      docx.style do
+        id "document_title"
+        name "Document title"
+        color "000000"
+        size 25
+        bold true
+        align :left
+      end
+
+      docx.style do
+        id "document_subtitle"
+        name "Document subtitle"
+        color "191919"
+        size 22
+        bold false
+        align :left
+      end
+
+      docx.style do
+        id "highlight"
+        name "Highlight"
+        color "191919"
+        size 20
+        bold false
+        align :both
+      end
+
+      docx.p "Highlights for #{book.name}", style: 'document_title'
+      docx.p "#{book.highlights.count} highlights for this book", style: 'document_subtitle'
+      docx.p
+      docx.hr
+      docx.p
+
+      book.highlights.all.each do |hl|
+        docx.p hl.content, style: 'highlight'
+        docx.p
+      end
+    end
+  end
+
   def destroy_repeated_highlights(book, highlight)
     book.highlights.all.each do |h|
       next if h.id == highlight.id
@@ -146,9 +189,3 @@ class ApplicationController < ActionController::Base
     books.find { |b| b.name == book}
   end
 end
-
-
-# def extract_first_email_from_string(txt)
-#   reg = /\s*\([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}/i
-#   txt.scan(reg).uniq.first
-# end
