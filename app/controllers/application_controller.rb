@@ -164,7 +164,7 @@ class ApplicationController < ActionController::Base
       docx.hr
       docx.p
 
-      book.highlights.all.each do |hl|
+      book.highlights.all.order('id asc').each do |hl|
         docx.p hl.content, style: 'highlight'
         docx.p
       end
