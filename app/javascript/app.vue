@@ -12,10 +12,11 @@
         <h1 class="welcome-title">
           Here are the books contained in your clippings:
         </h1>
-        <ul>
-          <li v-for="book in books"> {{book}} </li>
-        </ul>
 
+        <div class="each-book" v-for="book in books" @click="downloadBook(book.id)">
+          <h1 class="book-name"> {{book.name}} </h1>
+          <h2 class="book-highlights"> {{book.highlight_count}} </h2>
+        </div>
       </div>
     </div>
 
@@ -56,6 +57,20 @@ export default {
       this.books = res.data.books
       this.screen = "list-books"
     },
+
+    async downloadBook(bookId) {
+      const res = await axios({
+        method: 'post',
+        url: '/return_highlights',
+        data: {
+          id: bookId,
+        }
+      })
+
+      console.log(res.data)
+
+      window.open(res.data.book_url, '_blank');
+    }
   },
 }
 </script>

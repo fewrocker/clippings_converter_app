@@ -10,19 +10,26 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_04_234244) do
+ActiveRecord::Schema.define(version: 2019_06_11_152145) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "books", force: :cascade do |t|
+    t.string "name"
+    t.string "status"
+    t.integer "word_count"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "highlights", force: :cascade do |t|
+    t.string "content"
+    t.bigint "book_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["book_id"], name: "index_highlights_on_book_id"
   end
 
+  add_foreign_key "highlights", "books"
 end
