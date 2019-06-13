@@ -9,8 +9,8 @@ tmp/*
 public/assets
 public/packs
 public/packs-test
+public/books
 node_modules
 yarn-error.log
 .byebug_history
 .env*
-public/books
