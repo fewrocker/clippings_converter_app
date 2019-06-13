@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
   def return_highlights
     book = Book.find(params[:id])
 
-    book_file_path = "public/#{book.id}_#{book.name}_highlights.txt"
+    book_file_path = "public/books/#{book.id}_#{book.name}_highlights.txt"
 
     # FileUtils.mkdir_p(book_file_path) unless File.exist?(book_file_path)
     open(book_file_path, 'w') { |f|
@@ -31,7 +31,7 @@ class ApplicationController < ActionController::Base
       end
     }
 
-    @book_download_url = book_file_path.split('/').last
+    @book_download_url = book_file_path.gsub("public/", "")
 
     render 'application/return_highlights.json'
   end
@@ -129,14 +129,11 @@ class ApplicationController < ActionController::Base
   end
 
   def destroy_repeated_highlights(book, highlight)
-    # return if book.highlights.length < 10
-
-    book.highlights.each do |h|
+    book.highlights.all.each do |h|
       next if h.id == highlight.id
 
       if highlight.content.include?(h.content) || h.content.include?(highlight.content)
         h.destroy
-        pp "Destroyed repeated highlight"
       end
     end
   end
