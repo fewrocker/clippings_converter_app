@@ -4,17 +4,6 @@
       <UploadFile v-if="screen === 'input-file'" @books-loaded="listBooks"/>
 
       <ListBooks v-if="screen === 'list-books'" :books="books"/>
-
-<!--       <div v-if="screen === 'list-books'" class="app-list-books text-center">
-        <h1 class="welcome-title">
-          Here are the books contained in your clippings:
-        </h1>
-
-        <div class="each-book" v-for="book in books" @click="downloadBook(book.id)">
-          <h1 class="book-name"> {{book.name}} </h1>
-          <h2 class="book-highlights"> {{book.highlight_count}} </h2>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
@@ -22,6 +11,7 @@
 <script>
 import UploadFile from 'pages/upload_file.vue'
 import ListBooks from 'pages/list_books.vue'
+import Loading from 'components/loading.vue'
 
 export default {
   data: function () {
@@ -33,6 +23,7 @@ export default {
   components: {
     UploadFile,
     ListBooks,
+    Loading,
   },
   methods: {
     listBooks(books) {

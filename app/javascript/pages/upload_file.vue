@@ -4,9 +4,7 @@
   <div>
     <div class="full-app">
       <div v-if="loading">
-        <h1>
-          Your file is loading...
-        </h1>
+        <Loading />
       </div>
       <div v-else>
 
@@ -23,6 +21,7 @@
 <script>
 import vue2Dropzone from 'vue2-dropzone'
 import 'vue2-dropzone/dist/vue2Dropzone.min.css'
+import Loading from '../components/loading.vue'
 
 export default {
   name: "UploadFile",
@@ -41,6 +40,7 @@ export default {
   },
   components: {
     vueDropzone: vue2Dropzone,
+    Loading,
   },
   methods: {
     async addedFile(file) {
