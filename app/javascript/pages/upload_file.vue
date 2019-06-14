@@ -1,3 +1,5 @@
+<!-- https://alligator.io/vuejs/vue-dropzone/ -->
+
 <template>
   <div>
     <div class="full-app">
@@ -6,7 +8,9 @@
           Your file is loading...
         </h1>
       </div>
-      <div v-else="loading">
+      <div v-else>
+
+
         <h1 class="welcome-title">
           Please upload you "my_clippings.txt" file below:
         </h1>
@@ -17,6 +21,8 @@
 </template>
 
 <script>
+import vue2Dropzone from 'vue2-dropzone'
+import 'vue2-dropzone/dist/vue2Dropzone.min.css'
 
 export default {
   name: "UploadFile",
@@ -24,9 +30,44 @@ export default {
     return {
       content: "",
       loading: false,
+      dropzoneOptions: {
+        url: 'https://httpbin.org/post',
+        thumbnailWidth: 300,
+        maxFilesize: 0.5,
+        maxFiles: 1,
+        acceptedFiles: "application/txt",
+      }
     }
   },
+  components: {
+    vueDropzone: vue2Dropzone,
+  },
   methods: {
+    async addedFile(file) {
+      const vm = this
+
+      this.loading = true
+
+      const reader = new FileReader();
+
+      reader.onload = e => (this.content = e.target.result);
+      reader.readAsText(file);
+
+      await this.$sleep(1000)
+
+      const res = await axios({
+        method: 'post',
+        url: '/return_books',
+        data: {
+          content: this.content,
+        }
+      })
+
+      this.loading = false
+
+      console.log(res.data.books)
+      this.$emit('books-loaded', res.data.books)
+    },
     async processFile(event) {
       const vm = this
 
