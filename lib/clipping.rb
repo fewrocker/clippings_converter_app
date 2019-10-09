@@ -1,5 +1,8 @@
 class Clipping
+  attr_accessor :clipping, :book_line, :highlight_line
+
   def initialize(clipping)
+    @clipping = clipping
     clipping_split = clipping.split("\n").reject { |el| el === "" }
     @book_line = clipping_split.first
     @highlight_line = clipping_split.last
@@ -8,7 +11,7 @@ class Clipping
   def book_name
     email = extract_first_email_from_string(@book_line)
 
-    @book_line.split(email).first
+    email ? @book_line.split(email).first : @book_line
   end
 
   def highlight

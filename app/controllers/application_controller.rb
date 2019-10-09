@@ -29,7 +29,7 @@ class ApplicationController < ActionController::Base
   private
 
   def separate_content_into_clippings(content)
-    clippings = content.split("==========").reject { |el| el === "\n" }
+    clippings = content.gsub("\r\n","\n").split("==========").reject { |el| el == "\n" }
 
     clippings_array = []
 
@@ -49,7 +49,7 @@ class ApplicationController < ActionController::Base
       book = current_books.find { |bk| bk.name == book_name }
 
       if book.nil?
-        book = Book.create(name: book_name) if book.nil?
+        book = Book.create(name: book_name)
         current_books << book
       end
 
