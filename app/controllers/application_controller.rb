@@ -41,6 +41,9 @@ class ApplicationController < ActionController::Base
   end
 
   def create_highlights_from_clippings(clippings)
+    start_time = Time.now
+    elapsed_delete_total = 0.to_f
+
     current_books = []
 
     clippings.each do |clipping|
@@ -55,11 +58,18 @@ class ApplicationController < ActionController::Base
 
       highlight = Highlight.new
       highlight.content = clipping.highlight
+      highlight.location_start = clipping.location_start.to_i
+      highlight.location_end = clipping.location_end.to_i
       highlight.book = book
       highlight.save
 
-      destroy_repeated_highlights(book, highlight)
+      x = destroy_repeated_highlights(book, highlight)
+      elapsed_delete_total += x if x
     end
+
+    elapsed_end = Time.now
+    elapsed_all = elapsed_end - start_time
+    binding.pry
 
     current_books
   end
@@ -172,13 +182,36 @@ class ApplicationController < ActionController::Base
   end
 
   def destroy_repeated_highlights(book, highlight)
-    book.highlights.all.each do |h|
+    start_time = Time.now
+
+    # book.highlights.find_each do |h|
+    #   book.highlights.where("#{h.location_start} BETWEEN location_start AND location_end").where("created_at < ?", h.created_at).destroy_all
+    # end
+
+    book.highlights.order('created_at desc').all.find_each do |h|
       next if h.id == highlight.id
 
       if highlight.content.include?(h.content) || h.content.include?(highlight.content)
         h.destroy
       end
     end
+
+    # hls = book.highlights.order('content asc').all.to_a
+
+    # hls.each do |hl|
+    #   hl_index = hls.index(hl)
+    #   hl2 = hls[hl_index + 1]
+
+    #   if (hl.content.include?(hl2.content) || hl2.content.include?(hl.content)) && (hl2.created_at > hl.created_at)
+    #     hl.destroy
+    #     return if hl_index = hls.count - 1
+    #   else
+    #     return if hl_index = hls.count - 1
+    #     next
+    #   end
+    # end
+
+    return Time.now - start_time
   end
 
   def book_names(books)

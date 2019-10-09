@@ -1,11 +1,13 @@
 class Clipping
   attr_accessor :clipping, :book_line, :highlight_line
+  LOCATION_MATCH_REGEX = /(\d+)-(\d+)/
 
   def initialize(clipping)
     @clipping = clipping
     clipping_split = clipping.split("\n").reject { |el| el === "" }
-    @book_line = clipping_split.first
-    @highlight_line = clipping_split.last
+    @book_line = clipping_split.first || ""
+    @highlight_line = clipping_split.last || ""
+    @location_line = clipping_split.second || ""
   end
 
   def book_name
@@ -16,6 +18,14 @@ class Clipping
 
   def highlight
     @highlight_line
+  end
+
+  def location_start
+    @location_line.match(LOCATION_MATCH_REGEX) && @location_line.match(LOCATION_MATCH_REGEX)[1].to_i
+  end
+
+  def location_end
+    @location_line.match(LOCATION_MATCH_REGEX) && @location_line.match(LOCATION_MATCH_REGEX)[2].to_i
   end
 
   private

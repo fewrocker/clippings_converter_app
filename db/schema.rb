@@ -25,6 +25,8 @@ ActiveRecord::Schema.define(version: 2019_06_11_152145) do
 
   create_table "highlights", force: :cascade do |t|
     t.string "content"
+    t.integer "location_start"
+    t.integer "location_end"
     t.bigint "book_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
