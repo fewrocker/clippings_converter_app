@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2019_06_11_152145) do
     t.string "name"
     t.string "status"
     t.integer "word_count"
+    t.string "session_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

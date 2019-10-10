@@ -38,6 +38,7 @@ export default {
       }
     }
   },
+  props: [ "sessionKey" ],
   components: {
     vueDropzone: vue2Dropzone,
     Loading,
@@ -60,12 +61,12 @@ export default {
         url: '/return_books',
         data: {
           content: this.content,
+          session_key: this.sessionKey,
         }
       })
 
       this.loading = false
 
-      console.log(res.data.books)
       this.$emit('books-loaded', res.data.books)
     },
     async processFile(event) {
@@ -86,6 +87,7 @@ export default {
         url: '/return_books',
         data: {
           content: this.content,
+          session_key: this.sessionKey,
         }
       })
 

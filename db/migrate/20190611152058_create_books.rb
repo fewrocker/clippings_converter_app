@@ -4,6 +4,7 @@ class CreateBooks < ActiveRecord::Migration[5.2]
       t.string :name
       t.string :status
       t.integer :word_count
+      t.string :session_key
 
       t.timestamps
     end

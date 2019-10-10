@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="full-app">
-      <UploadFile v-if="screen === 'input-file'" @books-loaded="listBooks"/>
+      <UploadFile v-if="screen === 'input-file'" @books-loaded="listBooks" :session-key="sessionKey" />
 
       <ListBooks v-if="screen === 'list-books'" :books="books"/>
     </div>
@@ -18,6 +18,7 @@ export default {
     return {
       screen: "input-file",
       books: [],
+      sessionKey: null,
     }
   },
   components: {
@@ -25,7 +26,18 @@ export default {
     ListBooks,
     Loading,
   },
+  mounted() {
+    this.startSession();
+  },
   methods: {
+    startSession() {
+      // if (!localStorage.sessionKey) {
+      //   localStorage.sessionKey = this.makeId(20)
+      // }
+
+      // this.sessionKey = localStorage.sessionKey
+      this.sessionKey = this.makeId(10)
+    },
     listBooks(books) {
       console.log(books)
       this.screen = "list-books"
@@ -43,6 +55,15 @@ export default {
       console.log(res.data)
 
       window.open(res.data.book_url, '_blank');
+    },
+    makeId(length) {
+      var result           = '';
+      var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      var charactersLength = characters.length;
+      for ( var i = 0; i < length; i++ ) {
+         result += characters.charAt(Math.floor(Math.random() * charactersLength));
+      }
+      return result;
     }
   },
 }

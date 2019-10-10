@@ -9,7 +9,13 @@ class ApplicationController < ActionController::Base
   def return_books
     clippings = separate_content_into_clippings(params[:content])
 
-    @books = create_highlights_from_clippings(clippings)
+    start_time = Time.now
+
+    @books = create_highlights_from_clippings(clippings, params[:session_key])
+
+    end_time = Time.now - start_time
+
+    binding.pry
 
     render 'application/return_books.json'
   end
@@ -40,49 +46,28 @@ class ApplicationController < ActionController::Base
     clippings_array
   end
 
-  def create_highlights_from_clippings(clippings)
-    start_time = Time.now
-    elapsed_delete_total = 0.to_f
-
+  def create_highlights_from_clippings(clippings, session_key)
     current_books = []
 
     clippings.each do |clipping|
-      book_name = clipping.book_name
+      book = current_books.find { |bk| bk.name == clipping.book_name }
 
-      book = current_books.find { |bk| bk.name == book_name }
-
-      if book.nil?
-        book = Book.create(name: book_name)
+      unless book
+        book = Book.create(name: book_name, session_key: session_key)
         current_books << book
       end
 
-      highlight = Highlight.new
-      highlight.content = clipping.highlight
-      highlight.location_start = clipping.location_start.to_i
-      highlight.location_end = clipping.location_end.to_i
-      highlight.book = book
-      highlight.save
-
-      x = destroy_repeated_highlights(book, highlight)
-      elapsed_delete_total += x if x
+      Highlight.create(
+        content: clipping.highlight,
+        book: book
+      )
     end
 
-    elapsed_end = Time.now
-    elapsed_all = elapsed_end - start_time
-    binding.pry
+    current_books.each do |book|
+      destroy_repeated_highlights(book)
+    end
 
     current_books
-  end
-
-  def user_select_book(books)
-    books.each do |b|
-      pp "(#{books.index(b)}) #{b.name} (#{b.highlight_count} highlights)"
-    end
-
-    puts "Enter a book number to obtain highlights: "
-    book_select = gets.chomp.to_i
-
-    return books[book_select]
   end
 
   def write_file_with_highlights_for_books(highlights, book)
@@ -181,37 +166,22 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def destroy_repeated_highlights(book, highlight)
-    start_time = Time.now
+  def destroy_repeated_highlights(book)
+    hls = book.highlights.order('content asc').all.to_a
+    hl_group = []
+    previous_content = "abcdefg"
 
-    # book.highlights.find_each do |h|
-    #   book.highlights.where("#{h.location_start} BETWEEN location_start AND location_end").where("created_at < ?", h.created_at).destroy_all
-    # end
-
-    book.highlights.order('created_at desc').all.find_each do |h|
-      next if h.id == highlight.id
-
-      if highlight.content.include?(h.content) || h.content.include?(highlight.content)
-        h.destroy
+    hls.each do |hl|
+      content = hl.content.dup
+      if content.include?(previous_content) || previous_content.include?(content)
+        hl_group << hl
+      else
+        hl_group.sort_by(&:created_at)[0..-2].each(&:destroy)
+        hl_group = [hl]
       end
+
+      previous_content = content
     end
-
-    # hls = book.highlights.order('content asc').all.to_a
-
-    # hls.each do |hl|
-    #   hl_index = hls.index(hl)
-    #   hl2 = hls[hl_index + 1]
-
-    #   if (hl.content.include?(hl2.content) || hl2.content.include?(hl.content)) && (hl2.created_at > hl.created_at)
-    #     hl.destroy
-    #     return if hl_index = hls.count - 1
-    #   else
-    #     return if hl_index = hls.count - 1
-    #     next
-    #   end
-    # end
-
-    return Time.now - start_time
   end
 
   def book_names(books)
