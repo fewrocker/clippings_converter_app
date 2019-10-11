@@ -7,13 +7,15 @@ class ApplicationController < ActionController::Base
   end
 
   def return_books
-    clippings = separate_content_into_clippings(params[:content])
+    # clippings = separate_content_into_clippings(params[:content])
 
     start_time = Time.now
 
-    @books = create_highlights_from_clippings(clippings, params[:session_key])
+    @books = separate_content_into_clippings(params[:content])
 
-    end_time = Time.now - start_time
+    # @books = create_highlights_from_clippings(clippings, params[:session_key])
+
+    elapsed = Time.now - start_time
 
     binding.pry
 
@@ -37,23 +39,16 @@ class ApplicationController < ActionController::Base
   def separate_content_into_clippings(content)
     clippings = content.gsub("\r\n","\n").split("==========").reject { |el| el == "\n" }
 
-    clippings_array = []
-
-    clippings.each do |clipping|
-      clippings_array << Clipping.new(clipping)
-    end
-
-    clippings_array
-  end
-
-  def create_highlights_from_clippings(clippings, session_key)
     current_books = []
 
     clippings.each do |clipping|
-      book = current_books.find { |bk| bk.name == clipping.book_name }
+      clipping = Clipping.new(clipping)
+
+      book_name = clipping.book_name
+      book = current_books.find { |bk| bk.name == book_name }
 
       unless book
-        book = Book.create(name: book_name, session_key: session_key)
+        book = Book.create(name: book_name)
         current_books << book
       end
 
@@ -69,6 +64,31 @@ class ApplicationController < ActionController::Base
 
     current_books
   end
+
+  # def create_highlights_from_clippings(clippings, session_key)
+  #   current_books = []
+
+  #   clippings.each do |clipping|
+  #     book_name = clipping.book_name
+  #     book = current_books.find { |bk| bk.name == book_name }
+
+  #     unless book
+  #       book = Book.create(name: book_name, session_key: session_key)
+  #       current_books << book
+  #     end
+
+  #     Highlight.create(
+  #       content: clipping.highlight,
+  #       book: book
+  #     )
+  #   end
+
+  #   current_books.each do |book|
+  #     destroy_repeated_highlights(book)
+  #   end
+
+  #   current_books
+  # end
 
   def write_file_with_highlights_for_books(highlights, book)
     open("books/#{book.name}_highlights.txt", 'w') { |f|
