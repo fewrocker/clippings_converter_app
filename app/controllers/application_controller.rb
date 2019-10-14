@@ -7,13 +7,9 @@ class ApplicationController < ActionController::Base
   end
 
   def return_books
-    # clippings = separate_content_into_clippings(params[:content])
-
     start_time = Time.now
 
-    @books = separate_content_into_clippings(params[:content])
-
-    # @books = create_highlights_from_clippings(clippings, params[:session_key])
+    @books = separate_clippings_into_books(params[:content])
 
     elapsed = Time.now - start_time
 
@@ -36,7 +32,7 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def separate_content_into_clippings(content)
+  def separate_clippings_into_books(content)
     clippings = content.gsub("\r\n","\n").split("==========").reject { |el| el == "\n" }
 
     current_books = []
