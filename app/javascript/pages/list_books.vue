@@ -40,8 +40,6 @@ export default {
         }
       })
 
-      console.log(res.data)
-
       window.open(res.data.book_url, '_blank');
     }
   },

@@ -7,13 +7,13 @@ class ApplicationController < ActionController::Base
   end
 
   def return_books
-    start_time = Time.now
+    # start_time = Time.now
 
     @books = separate_clippings_into_books(params[:content])
 
-    elapsed = Time.now - start_time
+    # elapsed = Time.now - start_time
 
-    binding.pry
+    # binding.pry
 
     render 'application/return_books.json'
   end

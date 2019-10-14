@@ -41,7 +41,7 @@ export default {
     listBooks(books) {
       console.log(books)
       this.screen = "list-books"
-      this.books = books
+      this.books = books.sort((b1, b2) => b2.highlight_count - b1.highlight_count)
     },
     async downloadBook(bookId) {
       const res = await axios({
@@ -51,8 +51,6 @@ export default {
           id: bookId,
         }
       })
-
-      console.log(res.data)
 
       window.open(res.data.book_url, '_blank');
     },
