@@ -7,13 +7,7 @@ class ApplicationController < ActionController::Base
   end
 
   def return_books
-    # start_time = Time.now
-
     @books = separate_clippings_into_books(params[:content])
-
-    # elapsed = Time.now - start_time
-
-    # binding.pry
 
     render 'application/return_books.json'
   end
@@ -60,31 +54,6 @@ class ApplicationController < ActionController::Base
 
     current_books
   end
-
-  # def create_highlights_from_clippings(clippings, session_key)
-  #   current_books = []
-
-  #   clippings.each do |clipping|
-  #     book_name = clipping.book_name
-  #     book = current_books.find { |bk| bk.name == book_name }
-
-  #     unless book
-  #       book = Book.create(name: book_name, session_key: session_key)
-  #       current_books << book
-  #     end
-
-  #     Highlight.create(
-  #       content: clipping.highlight,
-  #       book: book
-  #     )
-  #   end
-
-  #   current_books.each do |book|
-  #     destroy_repeated_highlights(book)
-  #   end
-
-  #   current_books
-  # end
 
   def write_file_with_highlights_for_books(highlights, book)
     open("books/#{book.name}_highlights.txt", 'w') { |f|
